@@ -1,8 +1,8 @@
 <div align="center">
 
-# SD.Next
+# SD.Next - DESOTA Implementation 
 
-**Stable Diffusion implementation with advanced features**
+**Stable Diffusion implementation with advanced features, installable directly from DeSOTA DMT**
 
 [![Sponsors](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/vladmandic)
 ![Last Commit](https://img.shields.io/github/last-commit/vladmandic/automatic?svg=true)
