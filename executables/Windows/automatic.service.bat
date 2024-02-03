@@ -12,5 +12,5 @@ type nul > %model_path%\NSSM.flag
 call %model_path%\env\python -m pip install -r %model_path%\requirements.txt
 :mainloop
 :: Start Model Server
-call %model_path%\env\python %model_path%\webui.bat --docs --lowvram 
+call %model_path%\webui.bat --docs --lowvram 
 GOTO mainloop
