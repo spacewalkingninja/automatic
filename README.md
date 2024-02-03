@@ -1,6 +1,7 @@
 <div align="center">
 
-# SD.Next - DESOTA Implementation 
+# SD.Next
+# DESOTA Implementation 
 
 **Stable Diffusion implementation with advanced features, installable directly from DeSOTA DMT**
 
