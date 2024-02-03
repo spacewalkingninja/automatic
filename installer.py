@@ -815,47 +815,47 @@ def check_version(offline=False, reset=True): # pylint: disable=unused-argument
     if args.skip_all:
         return
     if not os.path.exists('.git'):
-        log.error('Not a git repository')
-        if not args.ignore:
-            sys.exit(1)
-    log.info(f'Version: {print_dict(get_version())}')
-    if args.version or args.skip_git:
-        return
-    commit = git('rev-parse HEAD')
-    global git_commit # pylint: disable=global-statement
-    git_commit = commit[:7]
-    if args.quick:
-        return
-    try:
-        import requests
-    except ImportError:
-        return
-    commits = None
-    try:
-        commits = requests.get('https://api.github.com/repos/vladmandic/automatic/branches/master', timeout=10).json()
-        if commits['commit']['sha'] != commit:
-            if args.upgrade:
-                global quick_allowed # pylint: disable=global-statement
-                quick_allowed = False
-                log.info('Updating main repository')
-                try:
-                    git('add .')
-                    git('stash')
-                    update('.', current_branch=True)
-                    # git('git stash pop')
-                    ver = git('log -1 --pretty=format:"%h %ad"')
-                    log.info(f'Upgraded to version: {ver}')
-                except Exception:
-                    if not reset:
-                        log.error('Error during repository upgrade')
-                    else:
-                        log.warning('Retrying repository upgrade...')
-                        git_reset()
-                        check_version(offline=offline, reset=False)
-            else:
-                log.info(f'Latest published version: {commits["commit"]["sha"]} {commits["commit"]["commit"]["author"]["date"]}')
-    except Exception as e:
-        log.error(f'Failed to check version: {e} {commits}')
+        log.info('DeSOTA Service initialize')
+        #if not args.ignore:
+        #    sys.exit(1)
+    #log.info(f'Version: {print_dict(get_version())}')
+    #if args.version or args.skip_git:
+    #    return
+    #commit = git('rev-parse HEAD')
+    #global git_commit # pylint: disable=global-statement
+    #git_commit = commit[:7]
+    #if args.quick:
+    #    return
+    #try:
+    #    import requests
+    #except ImportError:
+    #    return
+    #commits = None
+    #try:
+    #    commits = requests.get('https://api.github.com/repos/vladmandic/automatic/branches/master', timeout=10).json()
+    #    if commits['commit']['sha'] != commit:
+    #        if args.upgrade:
+    #            global quick_allowed # pylint: disable=global-statement
+    #            quick_allowed = False
+    #            log.info('Updating main repository')
+    #            try:
+    #                git('add .')
+    #                git('stash')
+    #                update('.', current_branch=True)
+    #                # git('git stash pop')
+    #                ver = git('log -1 --pretty=format:"%h %ad"')
+    #                log.info(f'Upgraded to version: {ver}')
+    #            except Exception:
+    #                if not reset:
+    #                    log.error('Error during repository upgrade')
+    #                else:
+    #                    log.warning('Retrying repository upgrade...')
+    #                    git_reset()
+    #                    check_version(offline=offline, reset=False)
+    #        else:
+    #            log.info(f'Latest published version: {commits["commit"]["sha"]} {commits["commit"]["commit"]["author"]["date"]}')
+    #except Exception as e:
+    #    log.error(f'Failed to check version: {e} {commits}')
 
 
 def update_wiki():
