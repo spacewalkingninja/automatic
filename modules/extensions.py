@@ -1,8 +1,15 @@
 import os
 from datetime import datetime
-import git
+
 from modules import shared, errors
 from modules.paths import extensions_dir, extensions_builtin_dir
+
+extensions = []
+APP_PATH = os.path.dirname(os.path.realpath(__file__))
+ROOTPATH = os.path.join(APP_PATH,'..')
+GITPATH = os.path.join(ROOTPATH,'env','Library','mingw64','libexec','git-core','git.exe')
+os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = str(GITPATH)
+import git
 
 
 extensions = []

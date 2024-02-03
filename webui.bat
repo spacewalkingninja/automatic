@@ -4,49 +4,7 @@
 
 @echo off
 
-:: USER PATH
-:: %~dp0 = C:\Users\[username]Desota\Desota_Models\DeUrlCruncher\executables\windows
-for %%a in ("%~dp0\..\..\..\..\..") do set "user_path=%%~fa"
-for %%a in ("%~dp0\..\..\..\..\..\..") do set "test_path=%%~fa"
-for %%a in ("%UserProfile%\..") do set "test1_path=%%~fa"
-
-:: GET USER PATH
-IF "%test1_path%" EQU "C:\Users" GOTO TEST1_PASSED
-IF "%test1_path%" EQU "C:\users" GOTO TEST1_PASSED
-IF "%test1_path%" EQU "c:\Users" GOTO TEST1_PASSED
-IF "%test1_path%" EQU "c:\users" GOTO TEST1_PASSED
-
-IF "%test_path%" EQU "C:\Users" GOTO TEST_PASSED
-IF "%test_path%" EQU "C:\users" GOTO TEST_PASSED
-IF "%test_path%" EQU "c:\Users" GOTO TEST_PASSED
-IF "%test_path%" EQU "c:\users" GOTO TEST_PASSED
-
-ECHO %fail%Error: Can't Resolve Request!%ansi_end%
-ECHO %fail%[ DEV TIP ] Run Command Without Admin Rights!%ansi_end%
-PAUSE
-exit
-:TEST1_PASSED
-set user_path=%UserProfile%
-:TEST_PASSED
-:: Model VARS
-
-set model_name=automatic
-set model_path_basepath=Desota\Desota_Models\%model_name%
-set python_main_basepath=%model_path_basepath%\main.py
-
-set model_path=%user_path%\%model_path_basepath%
-set python_main=%user_path%\%python_main_basepath%
-
-:: - Miniconda (virtual environment) Vars
-set conda_basepath=\Desota\Desota_Models\miniconda3\condabin\conda.bat
-set model_env_basepath=%model_path_basepath%\env
-
-:: Miniconda (virtual environment) Vars
-set conda_path=%user_path%\%conda_basepath%
-set model_env=%user_path%\%model_env_basepath%
-set pip_reqs=%user_path%\%pip_reqs_basepath%
-
-set pyenv=%model_env%\python
+set pyenv=.\env\python
 
 set SKIP_VENV=1
 ::call %conda_path% activate %model_env% >NUL 2>NUL

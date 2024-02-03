@@ -1,10 +1,17 @@
 import json
-import os.path
 import shutil
 import errno
 import html
 from datetime import datetime, timedelta
+
+import os
+extensions = []
+APP_PATH = os.path.dirname(os.path.realpath(__file__))
+ROOTPATH = os.path.join(APP_PATH,'..')
+GITPATH = os.path.join(ROOTPATH,'env','Library','mingw64','libexec','git-core','git.exe')
+os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = str(GITPATH)
 import git
+
 import gradio as gr
 from modules import extensions, shared, paths, errors
 from modules.call_queue import wrap_gradio_gpu_call

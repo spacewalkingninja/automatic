@@ -17,7 +17,7 @@ from ldm.data.util import AddMiDaS
 from ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
 from einops import repeat, rearrange
 from blendmodes.blend import blendLayers, BlendType
-from installer import git_commit
+#from installer import git_commit
 from modules import shared, devices, errors
 import modules.memstats
 import modules.lowvram
@@ -605,7 +605,7 @@ def create_infotext(p: StableDiffusionProcessing, all_prompts=None, all_seeds=No
         # sdnext
         "Backend": 'Diffusers' if shared.backend == shared.Backend.DIFFUSERS else 'Original',
         "App": 'SD.Next',
-        "Version": git_commit,
+        "Version": 'DeSota Special',
         "Comment": comment,
         "Operations": '; '.join(ops).replace('"', '') if len(p.ops) > 0 else 'none',
     }

@@ -227,6 +227,9 @@ call %model_path%\webui.bat --debug --skip-git
 ::    call conda list
 ::)
 
+
+call pip install typing_extensions==4.9.0 --upgrade
+
 :: MINICONDA ENV DEACTIVATE
 call %conda_path% deactivate >NUL 2>NUL
 
