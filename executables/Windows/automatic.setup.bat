@@ -211,7 +211,7 @@ start /WAIT %model_service_install%
 ECHO.
 ECHO %info_h1% Step 6/6 - Install Project %ansi_end%
 
-call %model_path%\webui.bat --debug
+call %model_path%\webui.bat --debug --skip-git
 
 ::IF %arg2_bool% EQU 1 (
 ::    call pip install -r %pip_reqs% --compile --no-cache-dir
