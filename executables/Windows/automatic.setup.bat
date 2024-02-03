@@ -178,9 +178,9 @@ call %conda_path% create --prefix %model_env% python=3.10 -y >NUL 2>NUL
 call %conda_path% activate %model_env% >NUL 2>NUL
 ECHO %info_h2% Step 4/6 - Git and Accessories for Environment...%ansi_end% 
 ::call conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-call conda install git
+call conda install git -y
 ::call conda install conda-forge::transformers
-call conda install "ffmpeg<5" -c conda-forge
+call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y > NUL 2>NUL
 GOTO eo_conda
 
@@ -190,9 +190,9 @@ call %conda_path% create --prefix %model_env% python=3.10 -y
 call %conda_path% activate %model_env%
 ECHO %info_h2% Step 4/6 - Installing Git and Accessories for Environment...%ansi_end% 
 ::call conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-call conda install git
+call conda install git -y
 ::call conda install conda-forge::transformers
-call conda install "ffmpeg<5" -c conda-forge
+call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y
 
 :eo_conda
