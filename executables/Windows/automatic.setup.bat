@@ -198,9 +198,18 @@ call %conda_path% install pip -y
 :eo_conda
 
 
+
+:: Install Service - NSSM  - the Non-Sucking Service Manager
+ECHO.
+ECHO %info_h1%Step 5/6 - Create Project Service with NSSM%ansi_end%
+ECHO %info_h2%Installing Service...%ansi_end% 
+ECHO     Service Install Path: %model_service_install%
+start /WAIT %model_service_install%
+
+
 :: Install required Libraries
 ECHO.
-ECHO %info_h1% Step 5/6 - Install Project %ansi_end%
+ECHO %info_h1% Step 6/6 - Install Project %ansi_end%
 
 call %model_path%\webui.bat --debug
 
@@ -218,13 +227,6 @@ call %model_path%\webui.bat --debug
 
 :: MINICONDA ENV DEACTIVATE
 call %conda_path% deactivate >NUL 2>NUL
-
-:: Install Service - NSSM  - the Non-Sucking Service Manager
-ECHO.
-::ECHO %info_h1%Step 3/3 - Create Project Service with NSSM%ansi_end%
-::ECHO %info_h2%Installing Service...%ansi_end% 
-::ECHO     Service Install Path: %model_service_install%
-::start /WAIT %model_service_install%
 
 :: Start Runner Service?
 ::IF %arg1_bool% EQU 1 GOTO NOSTART
