@@ -194,8 +194,10 @@ call conda install git -y
 ::call conda install conda-forge::transformers
 call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y
-
 :eo_conda
+
+call git clone https://github.com/crowsonkb/k-diffusion.git %model_path%\modules\k-diffusion
+call git clone https://github.com/kohya-ss/sd-scripts.git %model_path%\modules\lora
 
 
 
