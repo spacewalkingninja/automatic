@@ -9,7 +9,7 @@ break>%model_path%\service.log
 :: Make sure every package required is installed
 IF EXIST %model_path%\NSSM.flag GOTO mainloop
 type nul > %model_path%\NSSM.flag
-call %model_path%\env\python -m pip install -r %model_path%\requirements.txt
+::call %model_path%\env\python -m pip install -r %model_path%\requirements.txt
 :mainloop
 :: Start Model Server
 call %model_path%\webui.bat --docs --lowvram --skip-git
