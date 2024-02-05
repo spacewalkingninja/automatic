@@ -44,7 +44,7 @@ args = Dot({
     'version': False,
     'ignore': False,
 })
-git_commit = "unknown"
+git_commit = "DeSOTA Special"
 
 
 # setup console and file logging
@@ -234,7 +234,10 @@ def install(package, friendly: str = None, ignore: bool = False):
 def git(arg: str, folder: str = None, ignore: bool = False):
     if args.skip_git:
         return ''
-    git_cmd = os.environ.get('GIT', "git")
+    ROOTPATH = os.path.dirname(os.path.realpath(__file__))
+    GITPATH = os.path.join(ROOTPATH,'env','Library','mingw64','libexec','git-core','git.exe')
+    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = str(GITPATH)
+    git_cmd = os.environ.get('GIT_PYTHON_GIT_EXECUTABLE')
     if git_cmd != "git":
         git_cmd = os.path.abspath(git_cmd)
     result = subprocess.run(f'"{git_cmd}" {arg}', check=False, shell=True, env=os.environ, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder or '.')

@@ -3,9 +3,10 @@ import time, re, json, shutil
 import requests, subprocess
 import yaml
 from yaml.loader import SafeLoader
-
+import io, base64
 from PIL import Image, PngImagePlugin
 import argparse
+os.environ['CURL_CA_BUNDLE'] = ''
 parser = argparse.ArgumentParser()
 parser.add_argument("-mr", "--model_req", 
                     help="DeSOTA Request as yaml file path",
@@ -36,17 +37,6 @@ elif USER_SYS == "lin":
 DESOTA_ROOT_PATH = os.path.join(USER_PATH, "Desota")
 # DeSOTA Funcs [END]
 
-def descraper_request(descraper_url, payload, headers) -> dict|None:
-    descraper_response = requests.request("POST", descraper_url, json=payload, headers=headers)
-    if descraper_response.status_code != 200:
-        print(f"[ ERROR ] -> Descraper Request Failed (Info):\n\tResponse Code = {descraper_response.status_code}")
-        return None
-
-    descraper_res = descraper_response.json()
-    if 'error' in descraper_res or not descraper_res:
-        print(f"[ ERROR ] -> Descraper Response Error (Info):{json.dumps(descraper_res, indent=2)}")
-        return None
-    return descraper_res
 
 def main(args):
     '''
@@ -83,6 +73,10 @@ def main(args):
 
     # Get html file
     req_text = detools.get_request_text(model_request_dict)
+
+    if isinstance(req_text, list):
+        req_text = ' '.join(req_text)
+
     url = "http://127.0.0.1:7860"
     img_res = 0
     if req_text:
@@ -99,32 +93,39 @@ def main(args):
         "steps": 20,
         "cfg_scale": 7,
         "restore_faces": False,
-        "sampler_index": "DPM++ 2M Karras",
+        "sampler_index": "DPM++ 3M SDE",
         "enable_hr": False,
         "denoising_strength": 0.5,
         "hr_scale": 2,
         "hr_upscale": "Latent (bicubic antialiased)",
         }
-
-
-        targs = default_config
+        #print(model_request_dict)
+        
+        targs = model_request_dict['input_args']['model_args']
         if 'prompt' in targs:
             if targs['prompt'] == '$initial-prompt$':
-                targs['prompt'] = _req_text
+                targs['prompt'] = req_text
         else:
-            targs['prompt'] = _req_text
+            targs['prompt'] = req_text
+
+        if 'sampler_index' in targs:
+            temp_index = targs['sampler_index']
+            samplers=["UniPC","Euler","Euler a","LMS","Heun","DPM2","DPM2 a","DPM++ 2S a","DPM++ 2M","DPM++ SDE","DPM++ SDE Heun","DPM fast","DPM adaptive","LMS","DPM++ 3M SDE","DDIM","PLMS"]
+            targs['sampler_index'] = samplers[int(temp_index)]
+
 
         # Merge the loaded configuration with the default configuration
-        payload = targs
-        print (payload)
+        #payload = targs
+        payload = {**default_config, **targs}
+        #print (payload)
         json_data = json.dumps(payload)
 
-        response = requests.post(url=f'{url}/sdapi/v1/txt2img', json=payload)
+        response = requests.post(url=f'{url}/sdapi/v1/txt2img', json=payload, timeout=1280)
 
         r = response.json()
         #print(r)
-
         for i in r['images']:
+            print("found img")
             image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
 
             png_payload = {
@@ -142,7 +143,7 @@ def main(args):
         print(f"[ ERROR ] -> DeSOTA SD.Next API Output ERROR: No results can be parsed for this request")
         exit(2)
         
-    print(f"[ INFO ] -> Response:\n{json.dumps(r, indent=2)}")
+    #print(f"[ INFO ] -> Response:\n{json.dumps(r, indent=2)}")
     
     if test_mode:
         if not report_path.endswith(".json"):

@@ -53,7 +53,7 @@ else:
     server_name = "0.0.0.0" if cmd_opts.listen else None
 
 fastapi_args = {
-    "version": f'0.0.{git_commit}',
+    "version": f'DeSota Special',
     "title": "SD.Next",
     "description": "SD.Next",
     "docs_url": "/docs" if cmd_opts.docs else None,

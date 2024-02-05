@@ -196,6 +196,15 @@ call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y
 :eo_conda
 
+
+ECHO %info_h2% Step 5/7 - do some git hack magic ...%ansi_end% 
+
+call git clone https://github.com/spacewalkingninja/automatic.git %model_path%\tmp_model
+call mv %model_path%\tmp_model\.git %model_path%\.git 
+call mv %model_path%\tmp_model\.github %model_path%\.github 
+call mv %model_path%\tmp_model\.gitignore %model_path%\.gitignore 
+call mv %model_path%\tmp_model\.gitmodules %model_path%\.gitmodules 
+
 call git clone https://github.com/crowsonkb/k-diffusion.git %model_path%\modules\k-diffusion
 call git clone https://github.com/kohya-ss/sd-scripts.git %model_path%\modules\lora
 
@@ -203,7 +212,7 @@ call git clone https://github.com/kohya-ss/sd-scripts.git %model_path%\modules\l
 
 :: Install Service - NSSM  - the Non-Sucking Service Manager
 ECHO.
-ECHO %info_h1%Step 5/6 - Create Project Service with NSSM%ansi_end%
+ECHO %info_h1%Step 6/7 - Create Project Service with NSSM%ansi_end%
 ECHO %info_h2%Installing Service...%ansi_end% 
 ECHO     Service Install Path: %model_service_install%
 start /WAIT %model_service_install%
@@ -211,9 +220,9 @@ start /WAIT %model_service_install%
 
 :: Install required Libraries
 ECHO.
-ECHO %info_h1% Step 6/6 - Install Project %ansi_end%
+ECHO %info_h1% Step 7/7 - Install Project %ansi_end%
 
-call %model_path%\webui.bat --debug --skip-git
+call %model_path%\webui.bat --debug --test 
 
 ::IF %arg2_bool% EQU 1 (
 ::    call pip install -r %pip_reqs% --compile --no-cache-dir
@@ -226,9 +235,6 @@ call %model_path%\webui.bat --debug --skip-git
 ::    ECHO %info_h2%Instalation Completed:%ansi_end%
 ::    call conda list
 ::)
-
-
-call pip install typing_extensions==4.9.0 --upgrade
 
 :: MINICONDA ENV DEACTIVATE
 call %conda_path% deactivate >NUL 2>NUL
