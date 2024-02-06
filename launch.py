@@ -15,12 +15,7 @@ args = None
 parser = None
 script_path = None
 extensions_dir = None
-
-APP_PATH = os.path.dirname(os.path.realpath(__file__))
-GITPATH = os.path.join(APP_PATH,'env','Library','mingw64','libexec','git-core','git.exe')
-
-
-git = GITPATH #os.environ.get('GIT', "git")
+git = os.environ.get('GIT', "git")
 index_url = os.environ.get('INDEX_URL', "")
 stored_commit_hash = None
 dir_repos = "repositories"

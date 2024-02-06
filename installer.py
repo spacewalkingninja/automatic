@@ -44,9 +44,8 @@ args = Dot({
     'version': False,
     'ignore': False,
 })
-git_commit = "DeSOTA Special"
-ROOTPATH = os.path.dirname(os.path.realpath(__file__))
-GITPATH = os.path.join(ROOTPATH,'env','Library','git-cmd.exe')
+git_commit = "unknown"
+
 
 # setup console and file logging
 def setup_logging():
@@ -235,8 +234,7 @@ def install(package, friendly: str = None, ignore: bool = False):
 def git(arg: str, folder: str = None, ignore: bool = False):
     if args.skip_git:
         return ''
-    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = str(GITPATH)
-    git_cmd = os.environ.get('GIT_PYTHON_GIT_EXECUTABLE')
+    git_cmd = os.environ.get('GIT', "git")
     if git_cmd != "git":
         git_cmd = os.path.abspath(git_cmd)
     result = subprocess.run(f'"{git_cmd}" {arg}', check=False, shell=True, env=os.environ, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder or '.')
@@ -790,16 +788,16 @@ def get_version():
     global version # pylint: disable=global-statement
     if version is None:
         try:
-            subprocess.run(f'{GITPATH} config log.showsignature false', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            subprocess.run('git config log.showsignature false', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
         except Exception:
             pass
         try:
-            res = subprocess.run(f'{GITPATH} log --pretty=format:"%h %ad" -1 --date=short', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run('git log --pretty=format:"%h %ad" -1 --date=short', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             ver = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else '  '
             githash, updated = ver.split(' ')
-            res = subprocess.run(f'{GITPATH} remote get-url origin', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run('git remote get-url origin', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             origin = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else ''
-            res = subprocess.run(f'{GITPATH} rev-parse --abbrev-ref HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run('git rev-parse --abbrev-ref HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             branch_name = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else ''
             version = {
                 'app': 'sd.next',
@@ -817,9 +815,9 @@ def check_version(offline=False, reset=True): # pylint: disable=unused-argument
     if args.skip_all:
         return
     if not os.path.exists('.git'):
-        log.info('DeSOTA Service initialize')
-        #if not args.ignore:
-        #    sys.exit(1)
+        log.error('Not a git repository')
+        if not args.ignore:
+            sys.exit(1)
     log.info(f'Version: {print_dict(get_version())}')
     if args.version or args.skip_git:
         return
