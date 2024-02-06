@@ -196,17 +196,24 @@ call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y
 :eo_conda
 
+::FIX FOR SSL!!!
+call %conda_path% deactivate >NUL 2>NUL
+call copy %model_path%\env\Library\bin\libcrypto-3-x64.dll %model_path%\env\DLLs
+call copy %model_path%\env\Library\bin\libcrypto-3-x64.pdb %model_path%\env\DLLs
+call copy %model_path%\env\Library\bin\libssl-3-x64.dll %model_path%\env\DLLs
+call copy %model_path%\env\Library\bin\libssl-3-x64.pdb %model_path%\env\DLLs
+call %conda_path% activate %model_env% >NUL 2>NUL
 
 ECHO %info_h2% Step 5/7 - do some git hack magic ...%ansi_end% 
 
-call git clone https://github.com/spacewalkingninja/automatic.git %model_path%\tmp_model
-call mv %model_path%\tmp_model\.git %model_path%\.git 
-call mv %model_path%\tmp_model\.github %model_path%\.github 
-call mv %model_path%\tmp_model\.gitignore %model_path%\.gitignore 
-call mv %model_path%\tmp_model\.gitmodules %model_path%\.gitmodules 
+call git clone http://github.com/spacewalkingninja/automatic.git .\tmp_model
+call move .\tmp_model\.git .\.git 
+call move .\tmp_model\.github .\.github 
+call move .\tmp_model\.gitignore .\.gitignore 
+call move .\tmp_model\.gitmodules .\.gitmodules 
 
-call git clone https://github.com/crowsonkb/k-diffusion.git %model_path%\modules\k-diffusion
-call git clone https://github.com/kohya-ss/sd-scripts.git %model_path%\modules\lora
+call git clone http://github.com/crowsonkb/k-diffusion.git %model_path%\modules\k-diffusion
+call git clone http://github.com/kohya-ss/sd-scripts.git %model_path%\modules\lora
 
 
 
@@ -238,19 +245,20 @@ call %model_path%\webui.bat --debug --test
 
 :: MINICONDA ENV DEACTIVATE
 call %conda_path% deactivate >NUL 2>NUL
+PAUSE
 
 :: Start Runner Service?
-::IF %arg1_bool% EQU 1 GOTO NOSTART
-::ECHO %info_h2%Starting Service...%ansi_end% 
-::ECHO     Service Start Path: %model_start%
-::start /WAIT %model_start%
-::call explorer "http://127.0.0.1:%service_port%"
-::ECHO %sucess%Instalation Completed!%ansi_end%
-::ECHO %info_h2%model name  : %model_name%%ansi_end%
-:: PAUSE FOR DEBUG
-::IF %arg2_bool% EQU 0 exit
-::PAUSE
-::exit
+IF %arg1_bool% EQU 1 GOTO NOSTART
+ECHO %info_h2%Starting Service...%ansi_end% 
+ECHO     Service Start Path: %model_start%
+start /WAIT %model_start%
+call explorer "http://127.0.0.1:%service_port%"
+ECHO %sucess%Instalation Completed!%ansi_end%
+ECHO %info_h2%model name  : %model_name%%ansi_end%
+ PAUSE FOR DEBUG
+IF %arg2_bool% EQU 0 exit
+PAUSE
+exit
 
 :NOSTART
 ECHO %sucess%%model_name% Instalation Completed!%ansi_end%

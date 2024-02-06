@@ -45,7 +45,8 @@ args = Dot({
     'ignore': False,
 })
 git_commit = "DeSOTA Special"
-
+ROOTPATH = os.path.dirname(os.path.realpath(__file__))
+GITPATH = os.path.join(ROOTPATH,'env','Library','git-cmd.exe')
 
 # setup console and file logging
 def setup_logging():
@@ -234,8 +235,6 @@ def install(package, friendly: str = None, ignore: bool = False):
 def git(arg: str, folder: str = None, ignore: bool = False):
     if args.skip_git:
         return ''
-    ROOTPATH = os.path.dirname(os.path.realpath(__file__))
-    GITPATH = os.path.join(ROOTPATH,'env','Library','mingw64','libexec','git-core','git.exe')
     os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = str(GITPATH)
     git_cmd = os.environ.get('GIT_PYTHON_GIT_EXECUTABLE')
     if git_cmd != "git":
@@ -791,16 +790,16 @@ def get_version():
     global version # pylint: disable=global-statement
     if version is None:
         try:
-            subprocess.run('git config log.showsignature false', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            subprocess.run(f'{GITPATH} config log.showsignature false', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
         except Exception:
             pass
         try:
-            res = subprocess.run('git log --pretty=format:"%h %ad" -1 --date=short', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run(f'{GITPATH} log --pretty=format:"%h %ad" -1 --date=short', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             ver = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else '  '
             githash, updated = ver.split(' ')
-            res = subprocess.run('git remote get-url origin', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run(f'{GITPATH} remote get-url origin', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             origin = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else ''
-            res = subprocess.run('git rev-parse --abbrev-ref HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
+            res = subprocess.run(f'{GITPATH} rev-parse --abbrev-ref HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, check=True)
             branch_name = res.stdout.decode(encoding = 'utf8', errors='ignore') if len(res.stdout) > 0 else ''
             version = {
                 'app': 'sd.next',
@@ -821,44 +820,44 @@ def check_version(offline=False, reset=True): # pylint: disable=unused-argument
         log.info('DeSOTA Service initialize')
         #if not args.ignore:
         #    sys.exit(1)
-    #log.info(f'Version: {print_dict(get_version())}')
-    #if args.version or args.skip_git:
-    #    return
-    #commit = git('rev-parse HEAD')
-    #global git_commit # pylint: disable=global-statement
-    #git_commit = commit[:7]
-    #if args.quick:
-    #    return
-    #try:
-    #    import requests
-    #except ImportError:
-    #    return
-    #commits = None
-    #try:
-    #    commits = requests.get('https://api.github.com/repos/vladmandic/automatic/branches/master', timeout=10).json()
-    #    if commits['commit']['sha'] != commit:
-    #        if args.upgrade:
-    #            global quick_allowed # pylint: disable=global-statement
-    #            quick_allowed = False
-    #            log.info('Updating main repository')
-    #            try:
-    #                git('add .')
-    #                git('stash')
-    #                update('.', current_branch=True)
-    #                # git('git stash pop')
-    #                ver = git('log -1 --pretty=format:"%h %ad"')
-    #                log.info(f'Upgraded to version: {ver}')
-    #            except Exception:
-    #                if not reset:
-    #                    log.error('Error during repository upgrade')
-    #                else:
-    #                    log.warning('Retrying repository upgrade...')
-    #                    git_reset()
-    #                    check_version(offline=offline, reset=False)
-    #        else:
-    #            log.info(f'Latest published version: {commits["commit"]["sha"]} {commits["commit"]["commit"]["author"]["date"]}')
-    #except Exception as e:
-    #    log.error(f'Failed to check version: {e} {commits}')
+    log.info(f'Version: {print_dict(get_version())}')
+    if args.version or args.skip_git:
+        return
+    commit = git('rev-parse HEAD')
+    global git_commit # pylint: disable=global-statement
+    git_commit = commit[:7]
+    if args.quick:
+        return
+    try:
+        import requests
+    except ImportError:
+        return
+    commits = None
+    try:
+        commits = requests.get('https://api.github.com/repos/vladmandic/automatic/branches/master', timeout=10).json()
+        if commits['commit']['sha'] != commit:
+            if args.upgrade:
+                global quick_allowed # pylint: disable=global-statement
+                quick_allowed = False
+                log.info('Updating main repository')
+                try:
+                    git('add .')
+                    git('stash')
+                    update('.', current_branch=True)
+                    # git('git stash pop')
+                    ver = git('log -1 --pretty=format:"%h %ad"')
+                    log.info(f'Upgraded to version: {ver}')
+                except Exception:
+                    if not reset:
+                        log.error('Error during repository upgrade')
+                    else:
+                        log.warning('Retrying repository upgrade...')
+                        git_reset()
+                        check_version(offline=offline, reset=False)
+            else:
+                log.info(f'Latest published version: {commits["commit"]["sha"]} {commits["commit"]["commit"]["author"]["date"]}')
+    except Exception as e:
+        log.error(f'Failed to check version: {e} {commits}')
 
 
 def update_wiki():
