@@ -7,8 +7,10 @@
 
 set pyenv=.\env\python
 
+set /p conda_path=<condapath.txt
+
 set SKIP_VENV=1
-::call %conda_path% activate %model_env% >NUL 2>NUL
+call %conda_path% activate .\env 
 
 if not defined PYTHON (set PYTHON=%pyenv%)
 if not defined VENV_DIR (set "VENV_DIR=%~dp0%venv")

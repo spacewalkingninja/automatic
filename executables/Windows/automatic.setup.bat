@@ -172,13 +172,15 @@ IF %PROCESSOR_ARCHITECTURE%==x86 powershell -command "Invoke-WebRequest -Uri %mi
 ECHO %info_h2% Step 3/6 - Creating MiniConda Environment...%ansi_end% 
 IF %arg2_bool% EQU 1 GOTO noisy_conda
 
+IF EXIST %model_env% GOTO eo_copy
+
 :: QUIET SETUP
 
 call %conda_path% create --prefix %model_env% python=3.10 -y >NUL 2>NUL
 call %conda_path% activate %model_env% >NUL 2>NUL
 ECHO %info_h2% Step 4/6 - Git and Accessories for Environment...%ansi_end% 
 ::call conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-call conda install git -y
+call conda install git lfs -y
 ::call conda install conda-forge::transformers
 call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y > NUL 2>NUL
@@ -190,7 +192,7 @@ call %conda_path% create --prefix %model_env% python=3.10 -y
 call %conda_path% activate %model_env%
 ECHO %info_h2% Step 4/6 - Installing Git and Accessories for Environment...%ansi_end% 
 ::call conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-call conda install git -y
+call conda install git lfs -y
 ::call conda install conda-forge::transformers
 call conda install "ffmpeg<5" -c conda-forge -y
 call %conda_path% install pip -y
@@ -202,12 +204,21 @@ call copy %model_path%\env\Library\bin\libcrypto-3-x64.dll %model_path%\env\DLLs
 call copy %model_path%\env\Library\bin\libcrypto-3-x64.pdb %model_path%\env\DLLs
 call copy %model_path%\env\Library\bin\libssl-3-x64.dll %model_path%\env\DLLs
 call copy %model_path%\env\Library\bin\libssl-3-x64.pdb %model_path%\env\DLLs
+:eo_copy
+@echo %conda_path% > condapath.txt
+ECHO %info_h2% Step 5/7 - Download Models... THIS WILL TAKE A WHILE %ansi_end% 
+::PAUSE
+
+if not exist ".\models\Stable-diffusion\stable-diffusion-v1-5\" mkdir .\models\Stable-diffusion\stable-diffusion-v1-5
+powershell -command "Invoke-WebRequest -Uri https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-5-pruned.ckpt -OutFile .\models\Stable-diffusion\stable-diffusion-v1-5\v1-5-pruned.ckpt" 
+powershell -command "Invoke-WebRequest -Uri https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-5-pruned.safetensors -OutFile .\models\Stable-diffusion\stable-diffusion-v1-5\v1-5-pruned.safetensors" 
+
 call %conda_path% activate %model_env% >NUL 2>NUL
-
-ECHO %info_h2% Step 5/7 - do some git hack magic ...%ansi_end% 
-
+call git clone https://huggingface.co/lllyasviel/ControlNet-v1-1 .\models\ControlNet
 call git clone http://github.com/spacewalkingninja/automatic.git .\tmp_model
-call move .\tmp_model\.git .\.git 
+
+ECHO %info_h2% - do some magic ...%ansi_end% 
+call move .\tmp_model\.git\ .\.git 
 call move .\tmp_model\.github .\.github 
 call move .\tmp_model\.gitignore .\.gitignore 
 call move .\tmp_model\.gitmodules .\.gitmodules 

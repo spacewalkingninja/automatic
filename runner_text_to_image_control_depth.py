@@ -6,6 +6,7 @@ from yaml.loader import SafeLoader
 import io, base64
 from PIL import Image, PngImagePlugin
 import argparse
+import cv2
 os.environ['CURL_CA_BUNDLE'] = ''
 parser = argparse.ArgumentParser()
 parser.add_argument("-mr", "--model_req", 
@@ -71,14 +72,28 @@ def main(args):
         test_mode = False
         send_task_url = out_urls[0]
 
-    # Get html file
+    # Get text file
     req_text = detools.get_request_text(model_request_dict)
+    # Get img file
+    req_img = detools.get_request_image(model_request_dict)
 
     if isinstance(req_text, list):
         req_text = ' '.join(req_text)
 
+    if isinstance(req_img, list):
+        imgs_list = req_img
+        req_img = imgs_list[0]
+
+    # Read Image in RGB order
+    img = cv2.imread(req_img)
+
+    # Encode into PNG and send to ControlNet
+    retval, bytes = cv2.imencode('.png', img)
+    encoded_image = base64.b64encode(bytes).decode('utf-8')
+
     url = "http://127.0.0.1:7860"
     img_res = 0
+
     if req_text:
         default_config = {
         #"prompt": str(args.text_prompt),
@@ -93,16 +108,37 @@ def main(args):
         "steps": 20,
         "cfg_scale": 7,
         "restore_faces": False,
-        "sampler_index": "14",#DPM++ 3M SDE
+        "sampler_index": "DPM++ 3M SDE",
         "enable_hr": False,
         "denoising_strength": 0.5,
         "hr_scale": 2,
         "hr_upscale": "Latent (bicubic antialiased)",
+        "alwayson_scripts": {
+            "controlnet": {
+                "args": [
+                    {
+                        "input_image": encoded_image,
+                        "module": "depth_anything",
+                        "model": "control_v11f1p_sd15_depth [cfd03158]",
+                        "weight": 1,
+                        "resize_mode": 1,
+                        "lowvram": 1,
+                        "processor_res": 64,
+                        "threshold_a": 64,
+                        "threshold_b": 64,
+                        "guidance_start":0.0,
+                        "guidance_end":1.0,
+                        "control_mode":0
+                    }
+                ]
+            }
+        }
         }
         #print(model_request_dict)
         targs = default_config
         if 'model_args' in model_request_dict['input_args']:
             targs = model_request_dict['input_args']['model_args']
+    
         if 'prompt' in targs:
             if targs['prompt'] == '$initial-prompt$':
                 targs['prompt'] = req_text
@@ -113,6 +149,18 @@ def main(args):
             temp_index = targs['sampler_index']
             samplers=["UniPC","Euler","Euler a","LMS","Heun","DPM2","DPM2 a","DPM++ 2S a","DPM++ 2M","DPM++ SDE","DPM++ SDE Heun","DPM fast","DPM adaptive","LMS","DPM++ 3M SDE","DDIM","PLMS"]
             targs['sampler_index'] = samplers[int(temp_index)]
+
+        if 'guidance_end' in targs:
+            targs['guidance_end'] = float(targs['guidance_end'])
+
+        if 'guidance_start' in targs:
+            targs['guidance_start'] = float(targs['guidance_start'])
+
+        if 'resize_mode' in targs:
+            targs['resize_mode'] = int(targs['resize_mode'])
+
+        if 'weight' in targs:
+            targs['weight'] = float(targs['weight'])
 
 
         # Merge the loaded configuration with the default configuration

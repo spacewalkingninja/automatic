@@ -70,3 +70,4 @@ pydantic==1.10.13
 typing-extensions==4.9.0
 peft
 desota
+cv
